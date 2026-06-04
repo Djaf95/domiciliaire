@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-name" content="Domiciliaire">
+<meta name="theme-color" content="#0F1923">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Domiciliaire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0F1923;
+  --surface: #16232F;
+  --surface2: #1D2E3E;
+  --border: rgba(255,255,255,0.08);
+  --gold: #C9A84C;
+  --gold2: rgba(201,168,76,0.12);
+  --gold3: rgba(201,168,76,0.25);
+  --text: #E8E0D0;
+  --text2: #8A9BB0;
+  --text3: #4A5A6A;
+  --red: #E05252;
+  --green: #52C07A;
+  --orange: #E09652;
+  --safe: env(safe-area-inset-bottom, 0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'IBM Plex Sans',sans-serif;color:var(--text)}
+body{display:flex;flex-direction:column}
+
+/* ── TOPBAR ── */
+.topbar{
+  flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 12px;
+  background:var(--bg);
+  border-bottom:1px solid var(--border);
+  position:relative;z-index:10;
+}
+.topbar-logo{display:flex;align-items:center;gap:10px}
+.logo-mark{width:32px;height:32px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.logo-mark svg{width:18px;height:18px;fill:var(--bg)}
+.topbar-title{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;letter-spacing:0.05em;color:var(--text)}
+.topbar-sub{font-size:10px;color:var(--text2);letter-spacing:0.08em;margin-top:1px}
+.topbar-action{width:36px;height:36px;border-radius:8px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.topbar-action svg{width:18px;height:18px;stroke:var(--text2);fill:none;stroke-width:1.5}
+
+/* ── TABS ── */
+.tabs{
+  flex-shrink:0;
+  display:flex;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+}
+.tab{
+  flex:1;padding:10px 4px 9px;text-align:center;cursor:pointer;
+  font-size:10px;font-weight:500;color:var(--text3);
+  letter-spacing:0.06em;border-bottom:2px solid transparent;
+  transition:all .2s;
+}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-icon{display:block;margin:0 auto 3px;width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5}
+
+/* ── PAGES ── */
+.pages{flex:1;overflow:hidden;position:relative}
+.page{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;padding-bottom:calc(var(--safe) + 20px)}
+.page.active{display:block}
+
+/* ── CARDS & FORMS ── */
+.page-pad{padding:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.card-header{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.card-header-icon{width:28px;height:28px;background:var(--gold2);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-header-icon svg{width:15px;height:15px;stroke:var(--gold);fill:none;stroke-width:1.5}
+.card-title{font-size:13px;font-weight:500;color:var(--text)}
+.card-body{padding:12px 14px}
+.field{margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:11px;font-weight:500;color:var(--text2);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:5px}
+.field input,.field textarea,.field select{
+  width:100%;background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;padding:10px 12px;font-size:15px;color:var(--text);
+  font-family:'IBM Plex Sans',sans-serif;
+  -webkit-appearance:none;appearance:none;outline:none;
+  transition:border-color .2s;
+}
+.field input:focus,.field textarea:focus{border-color:var(--gold3)}
+.field textarea{resize:none;line-height:1.5}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238A9BB0' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+
+/* ── CHIPS ── */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chip{
+  padding:6px 12px;border-radius:20px;font-size:12px;font-weight:500;
+  background:var(--surface2);border:1px solid var(--border);color:var(--text2);
+  cursor:pointer;transition:all .15s;user-select:none;
+}
+.chip.on{background:var(--gold2);border-color:var(--gold);color:var(--gold)}
+
+/* ── BUTTONS ── */
+.btn-primary{
+  width:100%;padding:13px;border-radius:10px;border:none;
+  background:var(--gold);color:var(--bg);font-size:14px;font-weight:600;
+  font-family:'IBM Plex Sans',sans-serif;cursor:pointer;letter-spacing:0.03em;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:opacity .15s;
+}
+.btn-primary:disabled{opacity:.4}
+.btn-primary svg{width:17px;height:17px;stroke:var(--bg);fill:none;stroke-width:2}
+.btn-ghost{
+  width:100%;padding:11px;border-radius:10px;
+  border:1px solid var(--border);background:transparent;
+  color:var(--text2);font-size:13px;font-weight:500;
+  font-family:'IBM Plex Sans',sans-serif;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  transition:all .15s;
+}
+.btn-ghost svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5}
+.btn-row{display:flex;gap:8px;margin-top:4px}
+.btn-row .btn-primary,.btn-row .btn-ghost{flex:1}
+
+/* ── PHOTO ZONES ── */
+.photo-drop{
+  border:1.5px dashed var(--border);border-radius:10px;
+  padding:20px;text-align:center;cursor:pointer;
+  background:var(--surface2);transition:border-color .2s;
+}
+.photo-drop:active{border-color:var(--gold)}
+.photo-drop-icon{display:block;margin:0 auto 8px;width:28px;height:28px;stroke:var(--text3);fill:none;stroke-width:1.5}
+.photo-drop p{font-size:12px;color:var(--text2)}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.photo-thumb{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:var(--surface2)}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
+.photo-del{position:absolute;top:4px;right:4px;width:20px;height:20px;background:rgba(0,0,0,.7);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.photo-del svg{width:11px;height:11px;stroke:#fff;fill:none;stroke-width:2}
+.photo-tag{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.65);color:rgba(255,255,255,.8);font-size:9px;padding:2px 5px;font-family:'IBM Plex Mono',monospace;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+input[type=file]{display:none}
+
+/* ── STEPS NAV ── */
+.step-nav{
+  position:sticky;bottom:0;
+  background:var(--bg);border-top:1px solid var(--border);
+  padding:10px 16px calc(var(--safe) + 10px);
+  display:flex;gap:8px;
+}
+.step-dots{display:flex;gap:5px;align-items:center;justify-content:center;padding:8px 0 4px}
+.step-dot{width:6px;height:6px;border-radius:50%;background:var(--surface2);transition:all .2s}
+.step-dot.active{width:18px;border-radius:3px;background:var(--gold)}
+.step-dot.done{background:var(--gold);opacity:.4}
+
+/* ── SECTION LABELS ── */
+.section-tag{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--gold2);border:1px solid var(--gold3);
+  border-radius:4px;padding:3px 8px;
+  font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gold);
+  letter-spacing:0.08em;margin-bottom:12px;
+}
+
+/* ── LIBRARY ── */
+.lib-search{
+  display:flex;align-items:center;gap:8px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:10px 14px;margin-bottom:12px;
+}
+.lib-search svg{width:16px;height:16px;stroke:var(--text3);fill:none;stroke-width:1.5;flex-shrink:0}
+.lib-search input{background:none;border:none;outline:none;flex:1;font-size:14px;color:var(--text);font-family:'IBM Plex Sans',sans-serif}
+.lib-search input::placeholder{color:var(--text3)}
+.lib-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;margin-bottom:10px;overflow:hidden;
+  cursor:pointer;transition:border-color .2s;
+}
+.lib-card:active{border-color:var(--gold)}
+.lib-card-img{width:100%;height:140px;object-fit:cover;background:var(--surface2)}
+.lib-card-img-placeholder{width:100%;height:100px;background:var(--surface2);display:flex;align-items:center;justify-content:center}
+.lib-card-img-placeholder svg{width:32px;height:32px;stroke:var(--text3);fill:none;stroke-width:1}
+.lib-card-body{padding:10px 12px}
+.lib-card-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px}
+.lib-card-meta{font-size:11px;color:var(--text2);font-family:'IBM Plex Mono',monospace}
+.lib-card-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+.lib-tag{font-size:10px;padding:2px 7px;border-radius:4px;background:var(--surface2);color:var(--text2);font-family:'IBM Plex Mono',monospace}
+.lib-tag.gold{background:var(--gold2);color:var(--gold)}
+.lib-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:8px}
+.lib-photo{aspect-ratio:1;border-radius:6px;overflow:hidden;background:var(--surface2)}
+.lib-photo img{width:100%;height:100%;object-fit:cover}
+.lib-empty{text-align:center;padding:40px 16px;color:var(--text2);font-size:13px}
+.lib-empty svg{display:block;margin:0 auto 12px;width:40px;height:40px;stroke:var(--text3);fill:none;stroke-width:1}
+
+/* ── AI BOX ── */
+.ai-log{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-top:10px}
+.ai-log-item{display:flex;align-items:flex-start;gap:8px;padding:4px 0;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border)}
+.ai-log-item:last-child{border-bottom:none}
+.ai-spinner{width:13px;height:13px;border:1.5px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;margin-top:1px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ai-check svg{width:13px;height:13px;stroke:var(--green);fill:none;stroke-width:2;flex-shrink:0;margin-top:1px}
+.ai-result{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:10px;font-size:12px;line-height:1.65;color:var(--text);white-space:pre-wrap;max-height:220px;overflow-y:auto}
+.src-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(52,120,192,.15);color:#5B9BD5;border:1px solid rgba(52,120,192,.2);padding:2px 7px;border-radius:4px;font-size:10px;font-family:'IBM Plex Mono',monospace;margin:2px}
+
+/* ── STATUS BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:5px;font-size:11px;font-weight:500;font-family:'IBM Plex Mono',monospace}
+.badge-ok{background:rgba(82,192,122,.12);color:var(--green)}
+.badge-warn{background:rgba(224,150,82,.12);color:var(--orange)}
+.badge-bad{background:rgba(224,82,82,.12);color:var(--red)}
+
+/* ── MODAL / SHEET ── */
+.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;display:none;align-items:flex-end}
+.sheet-overlay.open{display:flex}
+.sheet{background:var(--surface);border-radius:18px 18px 0 0;width:100%;max-height:90vh;overflow-y:auto;padding:0 0 calc(var(--safe) + 20px);animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheet-handle{width:36px;height:4px;border-radius:2px;background:var(--text3);margin:10px auto 16px}
+.sheet-title{font-size:15px;font-weight:500;padding:0 16px 12px;border-bottom:1px solid var(--border)}
+.sheet-body{padding:16px}
+
+/* ── INSTALL BANNER ── */
+.install-banner{
+  margin:0 16px 12px;padding:12px 14px;
+  background:var(--gold2);border:1px solid var(--gold3);
+  border-radius:10px;display:flex;align-items:center;gap:10px;
+  cursor:pointer;
+}
+.install-banner svg{width:20px;height:20px;stroke:var(--gold);fill:none;stroke-width:1.5;flex-shrink:0}
+.install-banner-text p{font-size:12px;font-weight:500;color:var(--gold)}
+.install-banner-text span{font-size:11px;color:rgba(201,168,76,.7)}
+.install-close{margin-left:auto;width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.install-close svg{width:14px;height:14px;stroke:var(--gold);fill:none;stroke-width:2}
+
+/* ── DETAIL VIEW ── */
+.detail-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.detail-back{width:32px;height:32px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.detail-back svg{width:16px;height:16px;stroke:var(--text2);fill:none;stroke-width:2}
+.detail-title{font-size:14px;font-weight:500;color:var(--text)}
+.detail-photos{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:14px}
+.detail-photo{aspect-ratio:4/3;border-radius:8px;overflow:hidden;background:var(--surface2)}
+.detail-photo img{width:100%;height:100%;object-fit:cover}
+.info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-label{color:var(--text2)}
+.info-val{color:var(--text);font-weight:500;text-align:right;max-width:55%}
+
+/* ── STEPPER FOR RECO ── */
+.stepper{display:flex;gap:0;overflow:hidden;border-radius:8px;border:1px solid var(--border);margin-bottom:14px}
+.step-item{flex:1;padding:8px 2px;text-align:center;font-size:10px;font-weight:500;color:var(--text3);border-right:1px solid var(--border);cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:2px}
+.step-item:last-child{border-right:none}
+.step-item.cur{background:var(--gold2);color:var(--gold)}
+.step-item.ok{background:rgba(82,192,122,.08);color:var(--green)}
+.step-item svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5}
+
+/* ── MISC ── */
+.divider{height:1px;background:var(--border);margin:14px 0}
+.hint{font-size:11px;color:var(--text3);line-height:1.5;margin-top:4px}
+.mono{font-family:'IBM Plex Mono',monospace;font-size:12px}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V7L12 2z"/></svg>
+    </div>
+    <div>
+      <div class="topbar-title">DOMICILIAIRE</div>
+      <div class="topbar-sub">OUTIL SPÉCIALISTE</div>
+    </div>
+  </div>
+  <div class="topbar-action" onclick="toggleInstallInfo()">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="showTab('reco')" id="tab-reco">
+    <svg class="tab-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    RECO
+  </div>
+  <div class="tab" onclick="showTab('biblio')" id="tab-biblio">
+    <svg class="tab-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    BIBLIO
+  </div>
+  <div class="tab" onclick="showTab('retex')" id="tab-retex">
+    <svg class="tab-icon" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    RETEX
+  </div>
+  <div class="tab" onclick="showTab('dossier')" id="tab-dossier">
+    <svg class="tab-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    DOSSIER
+  </div>
+</div>
+
+<!-- PAGES -->
+<div class="pages">
+
+  <!-- ══ RECO PAGE ══ -->
+  <div class="page active" id="page-reco">
+    <div id="install-banner-wrap"></div>
+    <div class="page-pad">
+      <div class="stepper" id="reco-stepper">
+        <div class="step-item cur" onclick="goRecoStep(0)" id="rs0"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Site</div>
+        <div class="step-item" onclick="goRecoStep(1)" id="rs1"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>Trajet</div>
+        <div class="step-item" onclick="goRecoStep(2)" id="rs2"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>Porte</div>
+        <div class="step-item" onclick="goRecoStep(3)" id="rs3"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Photos</div>
+        <div class="step-item" onclick="goRecoStep(4)" id="rs4"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>IA</div>
+      </div>
+
+      <!-- Step 0: Site -->
+      <div id="reco-s0">
+        <div class="section-tag">01 — SITE</div>
+        <div class="card">
+          <div class="card-body">
+            <div class="field"><label>Localisation / Adresse</label><input type="text" id="r-adresse" placeholder="17ème arr. Paris — 12 rue X" autocomplete="off"></div>
+            <div class="g2">
+              <div class="field"><label>Étage / Porte</label><input type="text" id="r-etage" placeholder="3ème, gauche"></div>
+              <div class="field"><label>Réf. mission</label><input type="text" id="r-ref" placeholder="RECO-001"></div>
+            </div>
+            <div class="g2">
+              <div class="field"><label>Date</label><input type="date" id="r-date"></div>
+              <div class="field"><label>Opérateur</label><input type="text" id="r-op" placeholder="Nom Prénom"></div>
+            </div>
+          </div>
+        </div>
+        <div class="step-nav">
+          <button class="btn-primary" onclick="goRecoStep(1)">
+            <span>Trajet</span>
+            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 1: Trajet -->
+      <div id="reco-s1" style="display:none">
+        <div class="section-tag">02 — TRAJET & ACCÈS</div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+            <span class="card-title">Accès immeuble</span>
+          </div>
+          <div class="card-body">
+            <div class="field"><label>Type d'accès hall</label>
+              <div class="chips" id="c-acces">
+                <span class="chip" onclick="chip(this,'c-acces')">Digicode</span><span class="chip" onclick="chip(this,'c-acces')">Interphone</span><span class="chip" onclick="chip(this,'c-acces')">Badge</span><span class="chip" onclick="chip(this,'c-acces')">Libre</span><span class="chip" onclick="chip(this,'c-acces')">Gardien</span>
+              </div>
+            </div>
+            <div class="g2">
+              <div class="field"><label>Gardien</label>
+                <div class="chips" id="c-gardien">
+                  <span class="chip" onclick="chip(this,'c-gardien')">Permanent</span><span class="chip" onclick="chip(this,'c-gardien')">Intermittent</span><span class="chip" onclick="chip(this,'c-gardien')">Absent</span>
+                </div>
+              </div>
+              <div class="field"><label>Caméras</label>
+                <div class="chips" id="c-cam">
+                  <span class="chip" onclick="chip(this,'c-cam')">Oui</span><span class="chip" onclick="chip(this,'c-cam')">Non</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-icon"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14H7L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></div>
+            <span class="card-title">Trajet vers la cible</span>
+          </div>
+          <div class="card-body">
+            <div class="field"><label>Itinéraire détaillé</label><textarea id="r-itineraire" rows="3" placeholder="Hall → couloir gauche → escalier B → 3ème → 2ème porte droite. ~45 sec."></textarea></div>
+            <div class="g3">
+              <div class="field"><label>Portes</label><input type="number" id="r-nbportes" placeholder="0" min="0"></div>
+              <div class="field"><label>Temps (sec)</label><input type="number" id="r-temps" placeholder="45" min="0"></div>
+              <div class="field"><label>Sol devant porte</label><input type="text" id="r-sol" placeholder="Marbre, parquet..."></div>
+            </div>
+            <div class="field"><label>Point d'identification — Ne pas se tromper de porte le jour J</label><textarea id="r-pointcarac" rows="2" placeholder="Seule porte avec plinthes dorées, numéro 12 gravé..."></textarea></div>
+          </div>
+        </div>
+        <div class="step-nav">
+          <button class="btn-ghost" onclick="goRecoStep(0)">
+            <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Retour
+          </button>
+          <button class="btn-primary" onclick="goRecoStep(2)">
+            Porte
+            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Porte -->
+      <div id="reco-s2" style="display:none">
+        <div class="section-tag">03 — PORTE</div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-icon"><svg viewBox="0 0 24 24"><path d="M3 3h18v18H3zM9 3v18"/></svg></div>
+            <span class="card-title">Dimensions</span>
+          </div>
+          <div class="card-body">
+            <div class="g3">
+              <div class="field"><label>Hauteur (cm)</label><input type="number" id="r-h" placeholder="202" inputmode="numeric"></div>
+              <div class="field"><label>Largeur (cm)</label><input type="number" id="r-l" placeholder="126" inputmode="numeric"></div>
+              <div class="field"><label>Poignée (cm)</label><input type="number" id="r-hp" placeholder="92" inputmode="numeric"></div>
+            </div>
+            <div class="g2">
+              <div class="field"><label>Vantail principal (cm)</label><input type="number" id="r-vp" placeholder="83" inputmode="numeric"></div>
+              <div class="field"><label>Vantail secondaire (cm)</label><input type="number" id="r-vs" placeholder="43" inputmode="numeric"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+            <span class="card-title">Structure & équipements</span>
+          </div>
+          <div class="card-body">
+            <div class="field"><label>Configuration</label>
+              <div class="chips" id="c-config">
+                <span class="chip" onclick="chip(this,'c-config')">Simple vantail</span><span class="chip" onclick="chip(this,'c-config')">Double asym.</span><span class="chip" onclick="chip(this,'c-config')">Double sym.</span>
+              </div>
+            </div>
+            <div class="field"><label>Matériau apparent</label>
+              <div class="chips" id="c-mat">
+                <span class="chip" onclick="chip(this,'c-mat')">Bois massif</span>
+                <span class="chip" onclick="chip(this,'c-mat')">Bois + blindage acier</span>
+                <span class="chip" onclick="chip(this,'c-mat')">Acier apparent</span>
+                <span class="chip" onclick="chip(this,'c-mat')">Acier laqué</span>
+                <span class="chip" onclick="chip(this,'c-mat')">Aluminium</span>
+                <span class="chip" onclick="chip(this,'c-mat')">Verre + métal</span>
+                <span class="chip" onclick="chip(this,'c-mat')">Verre sécurit</span>
+                <span class="chip" onclick="chip(this,'c-mat')">PVC</span>
+                <span class="chip" onclick="chip(this,'c-mat')">Mixte bois/verre</span>
+              </div>
+              <div class="field" style="margin-top:10px"><label>Éléments décoratifs apparents (multi)</label>
+                <div class="chips" id="c-deco">
+                  <span class="chip" onclick="multiChip(this)">Moulures bois</span>
+                  <span class="chip" onclick="multiChip(this)">Moulures métal</span>
+                  <span class="chip" onclick="multiChip(this)">Rivets / boulons apparents</span>
+                  <span class="chip" onclick="multiChip(this)">Plats métalliques dorés</span>
+                  <span class="chip" onclick="multiChip(this)">Plats métalliques chromés</span>
+                  <span class="chip" onclick="multiChip(this)">Encadrement métallique</span>
+                  <span class="chip" onclick="multiChip(this)">Vitrage latéral</span>
+                  <span class="chip" onclick="multiChip(this)">Vitrage central</span>
+                  <span class="chip" onclick="multiChip(this)">Grille métal forgé</span>
+                  <span class="chip" onclick="multiChip(this)">Panneau décoratif</span>
+                  <span class="chip" onclick="multiChip(this)">Laiton / bronze</span>
+                  <span class="chip" onclick="multiChip(this)">Inox brossé</span>
+                </div>
+              </div>
+            </div>
+            <div class="field"><label>Sens ouverture</label>
+              <div class="chips" id="c-sens">
+                <span class="chip" onclick="chip(this,'c-sens')">Tirant G</span><span class="chip" onclick="chip(this,'c-sens')">Tirant D</span><span class="chip" onclick="chip(this,'c-sens')">Poussant G</span><span class="chip" onclick="chip(this,'c-sens')">Poussant D</span>
+              </div>
+            </div>
+            <div class="g2">
+              <div class="field"><label>Marque visible</label><input type="text" id="r-marque" placeholder="Fichet, Picard..."></div>
+              <div class="field"><label>Couleur / finition</label><input type="text" id="r-couleur" placeholder="Bois clair, acier..."></div>
+            </div>
+            <div class="field"><label>Serrure</label>
+              <div class="chips" id="c-serrure">
+                <span class="chip" onclick="chip(this,'c-serrure')">Simple</span><span class="chip" onclick="chip(this,'c-serrure')">Multipoints</span><span class="chip" onclick="chip(this,'c-serrure')">Carénée</span><span class="chip" onclick="chip(this,'c-serrure')">Inconnue</span>
+              </div>
+            </div>
+            <div class="field"><label>Éléments visibles (multi)</label>
+              <div class="chips" id="c-equip">
+                <span class="chip" onclick="multiChip(this)">Judas</span><span class="chip" onclick="multiChip(this)">Interphone</span><span class="chip" onclick="multiChip(this)">Badge</span><span class="chip" onclick="multiChip(this)">Cornières anti-pince</span><span class="chip" onclick="multiChip(this)">Plats acier vert.</span><span class="chip" onclick="multiChip(this)">Plaque cylindre</span><span class="chip" onclick="multiChip(this)">Rivets apparents</span><span class="chip" onclick="multiChip(this)">Verrou H/B</span><span class="chip" onclick="multiChip(this)">Caméra</span>
+              </div>
+            </div>
+            <div class="field"><label>Test aimant</label>
+              <div class="chips" id="c-aimant">
+                <span class="chip" onclick="chip(this,'c-aimant')">Métal détecté</span><span class="chip" onclick="chip(this,'c-aimant')">Bois épais — pas de détection</span><span class="chip" onclick="chip(this,'c-aimant')">Non effectué</span>
+              </div>
+            </div>
+            <div class="field"><label>Observations libres</label><textarea id="r-obs" rows="2" placeholder="État, usure, particularités..."></textarea></div>
+          </div>
+        </div>
+        <div class="step-nav">
+          <button class="btn-ghost" onclick="goRecoStep(1)">
+            <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Retour
+          </button>
+          <button class="btn-primary" onclick="goRecoStep(3)">
+            Photos
+            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3: Photos -->
+      <div id="reco-s3" style="display:none">
+        <div class="section-tag">04 — PHOTOS TERRAIN</div>
+        <div class="card">
+          <div class="card-body">
+            <div class="photo-drop" onclick="document.getElementById('fi-reco').click()">
+              <svg class="photo-drop-icon" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              <p>Appuyer pour ajouter des photos</p>
+              <p style="font-size:11px;color:var(--text3);margin-top:3px">Depuis la bibliothèque ou l'appareil photo</p>
+            </div>
+            <input type="file" id="fi-reco" accept="image/*" multiple capture="environment" onchange="addPhotos(event,'recoPhotos','reco-photo-grid')">
+            <div class="photo-grid" id="reco-photo-grid"></div>
+          </div>
+        </div>
+        <div class="step-nav">
+          <button class="btn-ghost" onclick="goRecoStep(2)">
+            <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Retour
+          </button>
+          <button class="btn-primary" onclick="goRecoStep(4)">
+            Analyse IA
+            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 4: Analyse IA -->
+      <div id="reco-s4" style="display:none">
+        <div class="section-tag">05 — ANALYSE IA</div>
+        <div class="card">
+          <div class="card-body">
+            <p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:12px">L'appli formate toutes tes données et photos en un prompt complet. Tu le colles dans Claude.ai qui fait l'analyse visuelle, la recherche web vendeurs et génère le dossier Word.</p>
+
+            <div id="ai-log-reco" style="display:none" class="ai-log"></div>
+
+            <button class="btn-primary" onclick="lancerAnalyse()" id="btn-analyse" style="margin-bottom:10px">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+              Préparer le prompt
+            </button>
+
+            <div id="ai-result-reco" style="display:none">
+              <div id="ai-result-text"></div>
+              <button onclick="window.open('https://claude.ai','_blank')" style="width:100%;margin-top:10px;padding:12px;border-radius:9px;background:var(--gold);border:none;color:var(--bg);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'IBM Plex Sans',sans-serif">
+                <svg width="17" height="17" viewBox="0 0 24 24" style="stroke:var(--bg);fill:none;stroke-width:2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                Ouvrir Claude.ai et coller
+              </button>
+              <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+                <p style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:6px">Colle ici la réponse de Claude.ai</p>
+                <p style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.6">Une fois l'analyse reçue dans Claude.ai, sélectionne tout le texte de la réponse, copie-le et colle-le ici. L'appli extraira les données et mettra à jour ta fiche.</p>
+                <div id="analyse-retour-wrap">
+                  <textarea id="analyse-retour" rows="4" placeholder="Colle ici la réponse complète de Claude.ai..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;color:var(--text);font-family:'IBM Plex Sans',sans-serif;resize:vertical;line-height:1.5"></textarea>
+                  <button onclick="sauvegarderAnalyse()" style="width:100%;margin-top:6px;padding:10px;border-radius:8px;background:var(--surface2);border:1px solid var(--gold);color:var(--gold);font-size:13px;font-weight:500;cursor:pointer;font-family:'IBM Plex Sans',sans-serif">
+                    ✓ Sauvegarder l'analyse
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="step-nav">
+          <button class="btn-ghost" onclick="goRecoStep(3)">
+            <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Retour
+          </button>
+          <button class="btn-primary" onclick="showTab('dossier')" id="btn-to-dossier" disabled>
+            Générer dossier
+            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ BIBLIO PAGE ══ -->
+  <div class="page" id="page-biblio">
+    <div class="page-pad">
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div class="lib-search" style="flex:1">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Chercher une porte..." id="lib-search-input" oninput="filterLibrary()">
+        </div>
+        <button style="width:42px;height:42px;border-radius:10px;background:var(--gold);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0" onclick="openAddSheet()">
+          <svg width="20" height="20" viewBox="0 0 24 24" style="stroke:var(--bg);fill:none;stroke-width:2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+      </div>
+      <div id="lib-list"></div>
+    </div>
+  </div>
+
+  <!-- ══ RETEX PAGE ══ -->
+  <div class="page" id="page-retex">
+    <div class="page-pad">
+      <div class="section-tag">RETEX — DOMICILIAIRE</div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+          <span class="card-title">Intervention</span>
+        </div>
+        <div class="card-body">
+          <div class="g2">
+            <div class="field"><label>Date</label><input type="date" id="rx-date"></div>
+            <div class="field"><label>Durée effraction (sec)</label><input type="number" id="rx-duree" placeholder="6" inputmode="numeric"></div>
+          </div>
+          <div class="field"><label>Résultat</label>
+            <div class="chips" id="c-resultat">
+              <span class="chip" onclick="chip(this,'c-resultat')">Succès</span><span class="chip" onclick="chip(this,'c-resultat')">Succès partiel</span><span class="chip" onclick="chip(this,'c-resultat')">Abandon</span>
+            </div>
+          </div>
+          <div class="field"><label>État porte après intervention</label><input type="text" id="rx-etat" placeholder="Refermée sans difficulté / Endommagée..."></div>
+          <div class="field"><label>Conformité vs reco</label>
+            <div class="chips" id="c-conform">
+              <span class="chip" onclick="chip(this,'c-conform')">Conforme</span><span class="chip" onclick="chip(this,'c-conform')">Écarts mineurs</span><span class="chip" onclick="chip(this,'c-conform')">Écarts majeurs</span>
+            </div>
+          </div>
+          <div class="field"><label>Écarts constatés</label><textarea id="rx-ecarts" rows="2" placeholder="Éléments non identifiés en reco..."></textarea></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+          <span class="card-title">Moyen d'effraction</span>
+        </div>
+        <div class="card-body">
+          <div class="field"><label>MHE utilisé</label>
+            <div class="chips" id="c-mhe">
+              <span class="chip" onclick="chip(this,'c-mhe')">Door Raider</span><span class="chip" onclick="chip(this,'c-mhe')">Bélier manuel</span><span class="chip" onclick="chip(this,'c-mhe')">Bélier hydraulique</span><span class="chip" onclick="chip(this,'c-mhe')">Disqueuse</span><span class="chip" onclick="chip(this,'c-mhe')">Pied-de-biche</span><span class="chip" onclick="chip(this,'c-mhe')">Crochetage</span><span class="chip" onclick="chip(this,'c-mhe')">Autre</span>
+            </div>
+          </div>
+          <div class="field"><label>Justification du choix</label><textarea id="rx-choix" rows="3" placeholder="Le choix du DOOR RAIDER s'est naturellement imposé au vu de la structure..."></textarea></div>
+          <div class="field"><label>Difficulté globale</label>
+            <div class="chips" id="c-diff">
+              <span class="chip" onclick="chip(this,'c-diff')">Facile</span><span class="chip" onclick="chip(this,'c-diff')">Modéré</span><span class="chip" onclick="chip(this,'c-diff')">Difficile</span><span class="chip" onclick="chip(this,'c-diff')">Très difficile</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <span class="card-title">Bilan</span>
+        </div>
+        <div class="card-body">
+          <div class="field"><label>Points positifs (une ligne par point)</label><textarea id="rx-pos" rows="3" placeholder="Intégrité de l'ouvrant préservée.&#10;Effraction en 5-6 secondes.&#10;Porte refermée sans difficulté."></textarea></div>
+          <div class="field"><label>Problèmes rencontrés (une ligne par point)</label><textarea id="rx-neg" rows="3" placeholder="Sol marbre lisse — questionnement sur la chaussette.&#10;Vérin repoussé par l'élasticité de la porte."></textarea></div>
+          <div class="field"><label>Enseignements / Doctrine</label><textarea id="rx-ens" rows="2" placeholder="Ne pas laisser la chaussette sur la plaque basse sur sol marbre."></textarea></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+          <span class="card-title">Photos post-intervention</span>
+        </div>
+        <div class="card-body">
+          <div class="photo-drop" onclick="document.getElementById('fi-retex').click()">
+            <svg class="photo-drop-icon" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            <p>Photos état de la porte, traces, environnement</p>
+          </div>
+          <input type="file" id="fi-retex" accept="image/*" multiple capture="environment" onchange="addPhotos(event,'retexPhotos','retex-photo-grid')">
+          <div class="photo-grid" id="retex-photo-grid"></div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="showTab('dossier')">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Générer le dossier complet
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ DOSSIER PAGE ══ -->
+  <div class="page" id="page-dossier">
+    <div class="page-pad">
+      <div class="section-tag">GÉNÉRATION DOSSIER</div>
+      <div class="card">
+        <div class="card-body">
+          <p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px">Le dossier reprend exactement votre modèle de référence — en-tête, 8 sections numérotées, tableaux structurés, pied de page opérateur.</p>
+          <button class="btn-primary" onclick="genDossier('complet')" style="margin-bottom:10px">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Dossier complet (Reco + Effraction)
+          </button>
+          <button class="btn-ghost" onclick="genDossier('reco')" style="margin-bottom:10px">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Dossier reconnaissance seul
+          </button>
+          <button class="btn-ghost" onclick="genDossier('retex')">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Section effraction seule
+          </button>
+          <div id="gen-status" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ DETAIL VIEW ══ -->
+  <div class="page" id="page-detail">
+    <div class="detail-header">
+      <div class="detail-back" onclick="closeDetail()">
+        <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      </div>
+      <div class="detail-title" id="detail-title">Fiche porte</div>
+    </div>
+    <div class="page-pad" id="detail-body"></div>
+  </div>
+
+</div>
+
+<!-- ADD TO LIBRARY SHEET -->
+<div class="sheet-overlay" id="add-sheet">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Ajouter une porte à la bibliothèque</div>
+    <div class="sheet-body">
+      <div class="field"><label>Nom / Désignation</label><input type="text" id="lib-nom" placeholder="Blindage Pivot double vantail"></div>
+      <div class="g2">
+        <div class="field"><label>Type</label>
+          <select id="lib-type">
+            <option value="">— Sélectionner —</option>
+            <option>Blindage Pivot</option>
+            <option>Blindage Parisien</option>
+            <option>Bloc-porte acier</option>
+            <option>Porte bois simple</option>
+            <option>Porte bois renforcée</option>
+            <option>Porte aluminium</option>
+            <option>Porte PVC</option>
+            <option>Porte vitrée</option>
+            <option>Porte mixte bois/verre</option>
+            <option>Porte industrielle</option>
+            <option>Porte coupe-feu</option>
+            <option>Grille métallique</option>
+          </select>
+        </div>
+        <div class="field"><label>Marque</label><input type="text" id="lib-marque" placeholder="Fichet, Picard, Vachette..."></div>
+      </div>
+      <div class="field"><label>Configuration</label>
+        <div class="chips" id="c-lib-config">
+          <span class="chip" onclick="chip(this,'c-lib-config')">Simple vantail</span>
+          <span class="chip" onclick="chip(this,'c-lib-config')">Double asym.</span>
+          <span class="chip" onclick="chip(this,'c-lib-config')">Double sym.</span>
+          <span class="chip" onclick="chip(this,'c-lib-config')">Accordéon</span>
+          <span class="chip" onclick="chip(this,'c-lib-config')">Coulissante</span>
+        </div>
+      </div>
+      <div class="field"><label>Matériau principal</label>
+        <div class="chips" id="c-lib-mat">
+          <span class="chip" onclick="chip(this,'c-lib-mat')">Bois massif</span>
+          <span class="chip" onclick="chip(this,'c-lib-mat')">Bois + blindage acier</span>
+          <span class="chip" onclick="chip(this,'c-lib-mat')">Acier apparent</span>
+          <span class="chip" onclick="chip(this,'c-lib-mat')">Acier laqué</span>
+          <span class="chip" onclick="chip(this,'c-lib-mat')">Aluminium</span>
+          <span class="chip" onclick="chip(this,'c-lib-mat')">Verre + métal</span>
+          <span class="chip" onclick="chip(this,'c-lib-mat')">Verre sécurit</span>
+          <span class="chip" onclick="chip(this,'c-lib-mat')">PVC</span>
+          <span class="chip" onclick="chip(this,'c-lib-mat')">Mixte bois/verre</span>
+        </div>
+      </div>
+      <div class="field"><label>Éléments décoratifs / détails (multi)</label>
+        <div class="chips" id="c-lib-deco">
+          <span class="chip" onclick="multiChip(this)">Moulures bois</span>
+          <span class="chip" onclick="multiChip(this)">Moulures métal</span>
+          <span class="chip" onclick="multiChip(this)">Plats métalliques dorés</span>
+          <span class="chip" onclick="multiChip(this)">Plats chromés</span>
+          <span class="chip" onclick="multiChip(this)">Rivets apparents</span>
+          <span class="chip" onclick="multiChip(this)">Encadrement métal</span>
+          <span class="chip" onclick="multiChip(this)">Vitrage latéral</span>
+          <span class="chip" onclick="multiChip(this)">Vitrage central</span>
+          <span class="chip" onclick="multiChip(this)">Grille forgée</span>
+          <span class="chip" onclick="multiChip(this)">Laiton / bronze</span>
+          <span class="chip" onclick="multiChip(this)">Inox brossé</span>
+          <span class="chip" onclick="multiChip(this)">Panneau décoratif</span>
+        </div>
+      </div>
+      <div class="field"><label>Niveau de résistance estimé</label>
+        <div class="chips" id="c-lib-resist">
+          <span class="chip" onclick="chip(this,'c-lib-resist')">Faible</span><span class="chip" onclick="chip(this,'c-lib-resist')">Moyen</span><span class="chip" onclick="chip(this,'c-lib-resist')">Élevé</span><span class="chip" onclick="chip(this,'c-lib-resist')">Très élevé</span>
+        </div>
+      </div>
+      <div class="field"><label>Moyen d'effraction efficace</label><input type="text" id="lib-mhe" placeholder="Door Raider, disqueuse..."></div>
+      <div class="field"><label>Notes techniques</label><textarea id="lib-notes" rows="3" placeholder="Structure, particularités, points de faiblesse identifiés..."></textarea></div>
+      <div class="field"><label>Photos</label>
+        <div class="photo-drop" onclick="document.getElementById('fi-lib').click()">
+          <svg class="photo-drop-icon" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <p>Ajouter photos de référence</p>
+        </div>
+        <input type="file" id="fi-lib" accept="image/*" multiple capture="environment" onchange="addPhotos(event,'libNewPhotos','lib-new-grid')">
+        <div class="photo-grid" id="lib-new-grid"></div>
+      </div>
+      <button class="btn-primary" onclick="saveLibEntry()" style="margin-top:4px">
+        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Enregistrer dans la bibliothèque
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- INSTALL INFO SHEET -->
+<div class="sheet-overlay" id="info-sheet" onclick="toggleInstallInfo()">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Installer sur l'écran d'accueil</div>
+    <div class="sheet-body">
+      <div style="background:var(--surface2);border-radius:10px;padding:14px;margin-bottom:12px">
+        <p style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:10px">Pour installer l'application sur votre iPhone :</p>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:6px">1. Ouvrir dans <strong style="color:var(--text)">Safari</strong></p>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:6px">2. Appuyer sur <strong style="color:var(--text)">Partager</strong> (icône carré avec flèche)</p>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:6px">3. Sélectionner <strong style="color:var(--text)">Sur l'écran d'accueil</strong></p>
+        <p style="font-size:13px;color:var(--text2)">4. Appuyer sur <strong style="color:var(--text)">Ajouter</strong></p>
+      </div>
+      <p style="font-size:11px;color:var(--text3);line-height:1.6">L'application fonctionnera en plein écran sans la barre Safari et conservera vos données en local sur l'appareil.</p>
+      <button class="btn-ghost" onclick="toggleInstallInfo()" style="margin-top:12px">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────────
+const photos = { recoPhotos:[], retexPhotos:[], libNewPhotos:[] };
+const chips_state = {};
+let aiAnalysis = '', aiSources = [];
+let library = [];
+
+// ── PERSIST ───────────────────────────────────────────────────────
+function saveLib() { localStorage.setItem('dom_lib', JSON.stringify(library)); }
+
+const SEED_ENTRY = {
+  id: 1700000000000,
+  nom: "Blindage Pivot — Double Vantail Asymétrique",
+  type: "Blindage Pivot",
+  marque: "Consonance 2 vantaux (type Parisien)",
+  config: "Double asym.",
+  mat: "Bois + blindage acier",
+  deco: ["Plats métalliques dorés", "Rivets apparents", "Encadrement métal"],
+  resist: "Élevé",
+  mhe: "Door Raider + plaque grand format",
+  notes: `IDENTIFICATION : Blindage sur mesure ajouté sur porte bois existante. Technique typique années 1970–1980, immeubles haussmanniens Paris/Lyon. Modèle proche Consonance 2 vantaux. Certification probable BP1 à BP3 — NF A 70-503 / EN 1627. Poids estimé 100–120 kg.
+
+DIMENSIONS : H 2,02 m × L ~1,26 m. Vantail principal (droite) 80–85 cm. Vantail secondaire (gauche) 40–45 cm. Plats acier verticaux 8–10 cm de large. Épaisseur tôle 1,5–2,0 mm.
+
+STRUCTURE INTERNE : Sandwich 5 couches — (1) parement bois extérieur, (2) tôle acier noyau 1,5–2 mm, (3) profilés Oméga verticaux boulonnés à travers bois et tôle, (4) plat de battement central anti-pince, (5) laine de roche isolation phonique/feu. Barre pivot acier pleine hauteur. Paumelles à roulements à billes soudées. Pions anti-dégondage vantail gauche. Habillage acier bâti ancré maçonnerie.
+
+VERROUILLAGE : Serrure carénée multipoints 5–7 points A2P. Boîtier vertical pleine hauteur. Vantail passif maintenu par verrous à bascule haut et bas. Cornières anti-pince sur tout le pourtour.
+
+ÉQUIPEMENTS VISIBLES : Judas optique grand angle, interphone/badge bâti gauche, plaque d'armure cylindre.
+
+EFFRACTION (17ème arr. Paris) : Choix Door Raider naturellement imposé par la structure. Autres MHE en dotation PSIG CDG insuffisants. Plaque d'appui grand format nécessaire — aimant n'a pas détecté le métal (épaisseur bois importante). Résultat : succès en 5–6 secondes. Partie du dormant bois ayant cédé, ouvrant intact, porte refermée sans difficulté.
+
+⚠️ POINT DOCTRINE : Ne PAS laisser la chaussette sur la plaque basse du Door Raider sur sol marbre/lisse — limite la pénétration et l'ancrage du vérin. Nécessité d'appliquer le poids de corps complet de l'opérateur sur la plaque basse pour maintenir l'adhérence.
+
+POINTS DE VIGILANCE : Cylindre A2P***, ancrage bâti maçonnerie, pions anti-dégondage, boulonnerie profilés Oméga (vibrations MHE provoquent jeu progressif).`,
+  photos: [],
+  date: "17ème arrondissement de Paris",
+  refMission: "FAJARDO Joan — Dossier de référence",
+  seed: true
+};
+
+function loadLib() {
+  try { library = JSON.parse(localStorage.getItem('dom_lib') || '[]'); } catch { library = []; }
+  // Injecter la fiche de référence si pas déjà présente
+  if (!library.find(e => e.id === SEED_ENTRY.id)) {
+    library.push(SEED_ENTRY);
+    saveLib();
+  }
+  renderLibrary();
+}
+
+// ── TABS ──────────────────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const page = document.getElementById('page-' + name);
+  const tab = document.getElementById('tab-' + name);
+  if (page) page.classList.add('active');
+  if (tab) tab.classList.add('active');
+}
+
+// ── RECO STEPS ────────────────────────────────────────────────────
+let recoStep = 0;
+function goRecoStep(n) {
+  document.getElementById('reco-s' + recoStep).style.display = 'none';
+  if (recoStep < n) document.getElementById('rs' + recoStep).classList.replace('cur', 'ok');
+  recoStep = n;
+  document.getElementById('reco-s' + n).style.display = 'block';
+  document.getElementById('rs' + n).classList.add('cur');
+  document.getElementById('page-reco').scrollTo(0, 0);
+}
+
+// ── CHIPS ─────────────────────────────────────────────────────────
+function chip(el, group) {
+  document.querySelectorAll('#' + group + ' .chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  chips_state[group] = el.textContent.trim();
+}
+function multiChip(el) { el.classList.toggle('on'); }
+function getMultiChips(group) {
+  return Array.from(document.querySelectorAll('#' + group + ' .chip.on')).map(c => c.textContent.trim());
+}
+
+// ── PHOTOS ────────────────────────────────────────────────────────
+function addPhotos(e, store, gridId) {
+  Array.from(e.target.files).forEach(f => {
+    const r = new FileReader();
+    r.onload = ev => {
+      photos[store].push({ name: f.name, data: ev.target.result });
+      renderPhotos(store, gridId);
+    };
+    r.readAsDataURL(f);
+  });
+}
+function renderPhotos(store, gridId) {
+  const g = document.getElementById(gridId);
+  if (!g) return;
+  g.innerHTML = photos[store].map((p, i) => `
+    <div class="photo-thumb">
+      <img src="${p.data}" loading="lazy">
+      <button class="photo-del" onclick="delPhoto('${store}','${gridId}',${i})">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="photo-tag">${p.name}</div>
+    </div>`).join('');
+}
+function delPhoto(store, gridId, i) { photos[store].splice(i, 1); renderPhotos(store, gridId); }
+
+// ── LIBRARY ───────────────────────────────────────────────────────
+function openAddSheet() {
+  photos.libNewPhotos = [];
+  document.getElementById('lib-new-grid').innerHTML = '';
+  document.getElementById('lib-nom').value = '';
+  document.getElementById('lib-marque').value = '';
+  document.getElementById('lib-mhe').value = '';
+  document.getElementById('lib-notes').value = '';
+  document.getElementById('add-sheet').classList.add('open');
+}
+function closeSheet(id) { document.getElementById(id).classList.remove('open'); }
+document.getElementById('add-sheet').addEventListener('click', function(e) {
+  if (e.target === this) closeSheet('add-sheet');
+});
+
+function saveLibEntry() {
+  const entry = {
+    id: Date.now(),
+    nom: document.getElementById('lib-nom').value || 'Porte sans nom',
+    type: document.getElementById('lib-type').value,
+    marque: document.getElementById('lib-marque').value,
+    config: chips_state['c-lib-config'] || '',
+    mat: chips_state['c-lib-mat'] || '',
+    deco: getMultiChips('c-lib-deco'),
+    resist: chips_state['c-lib-resist'] || '',
+    mhe: document.getElementById('lib-mhe').value,
+    notes: document.getElementById('lib-notes').value,
+    photos: photos.libNewPhotos.slice(),
+    date: new Date().toLocaleDateString('fr-FR')
+  };
+  library.unshift(entry);
+  saveLib();
+  renderLibrary();
+  closeSheet('add-sheet');
+  photos.libNewPhotos = [];
+}
+
+function renderLibrary(filter = '') {
+  const list = document.getElementById('lib-list');
+  const filtered = library.filter(e =>
+    !filter || e.nom.toLowerCase().includes(filter) ||
+    (e.type||'').toLowerCase().includes(filter) ||
+    (e.marque||'').toLowerCase().includes(filter)
+  );
+  if (!filtered.length) {
+    list.innerHTML = `<div class="lib-empty">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <p>Bibliothèque vide</p>
+      <p style="font-size:11px;color:var(--text3);margin-top:4px">Appuyez sur + pour ajouter une porte</p>
+    </div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(e => {
+    const resistColor = e.resist === 'Faible' ? 'badge-ok' : e.resist === 'Moyen' ? 'badge-warn' : 'badge-bad';
+    const seedBadge = e.seed ? `<div style="background:var(--gold2);border:1px solid var(--gold3);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--gold);font-family:'IBM Plex Mono',monospace;letter-spacing:0.06em;margin-bottom:7px;display:inline-block">★ DOSSIER DE RÉFÉRENCE</div><br>` : '';
+    const firstPhoto = e.photos && e.photos.length ? `<img src="${e.photos[0].data}" class="lib-card-img" loading="lazy">` : `<div class="lib-card-img-placeholder"><svg viewBox="0 0 24 24" width="32" height="32" style="stroke:var(--text3);fill:none;stroke-width:1"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg></div>`;
+    return `<div class="lib-card" onclick="openDetail(${e.id})">
+      ${firstPhoto}
+      <div class="lib-card-body">
+        ${seedBadge}
+        <div class="lib-card-title">${e.nom}</div>
+        <div class="lib-card-meta">${e.type || '—'}${e.marque ? ' · ' + e.marque : ''} · ${e.date}</div>
+        <div class="lib-card-tags">
+          ${e.config ? `<span class="lib-tag">${e.config}</span>` : ''}
+          ${e.mat ? `<span class="lib-tag">${e.mat}</span>` : ''}
+          ${e.resist ? `<span class="lib-tag ${resistColor}">Résistance ${e.resist}</span>` : ''}
+          ${e.mhe ? `<span class="lib-tag gold">MHE: ${e.mhe}</span>` : ''}
+          ${e.deco && e.deco.length ? e.deco.slice(0,2).map(d=>`<span class="lib-tag">${d}</span>`).join('') : ''}
+        </div>
+        ${e.photos && e.photos.length > 1 ? `<div class="lib-photos">${e.photos.slice(1,4).map(p=>`<div class="lib-photo"><img src="${p.data}" loading="lazy"></div>`).join('')}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterLibrary() {
+  renderLibrary(document.getElementById('lib-search-input').value.toLowerCase());
+}
+
+function openDetail(id) {
+  const e = library.find(x => x.id === id);
+  if (!e) return;
+  document.getElementById('detail-title').textContent = e.nom;
+  const body = document.getElementById('detail-body');
+  const photosHtml = e.photos && e.photos.length ? `
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-body">
+        <div class="detail-photos">
+          ${e.photos.map(p => `<div class="detail-photo"><img src="${p.data}"></div>`).join('')}
+        </div>
+      </div>
+    </div>` : '';
+  const rows = [
+    ['Type', e.type || '—'], ['Marque', e.marque || '—'], ['Configuration', e.config || '—'],
+    ['Matériau', e.mat || '—'],
+    ['Éléments décoratifs', e.deco && e.deco.length ? e.deco.join(', ') : '—'],
+    ['Résistance', e.resist || '—'], ['MHE efficace', e.mhe || '—'],
+    ...(e.refMission ? [['Référence', e.refMission]] : []),
+    ['Ajouté le', e.date]
+  ];
+  body.innerHTML = photosHtml + `
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-body">
+        ${rows.map(([l,v]) => `<div class="info-row"><span class="info-label">${l}</span><span class="info-val">${v}</span></div>`).join('')}
+      </div>
+    </div>
+    ${e.notes ? `<div class="card"><div class="card-header"><div class="card-header-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><span class="card-title">Notes techniques</span></div><div class="card-body"><p style="font-size:13px;line-height:1.65;color:var(--text2)">${e.notes}</p></div></div>` : ''}
+    <button class="btn-ghost" onclick="deleteEntry(${id})" style="margin-top:4px;border-color:rgba(224,82,82,.3);color:var(--red)">
+      <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14H7L5 6"/></svg>
+      Supprimer cette fiche
+    </button>`;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-detail').classList.add('active');
+}
+
+function closeDetail() {
+  document.getElementById('page-detail').classList.remove('active');
+  document.getElementById('page-biblio').classList.add('active');
+}
+
+function deleteEntry(id) {
+  if (!confirm('Supprimer cette fiche ?')) return;
+  library = library.filter(e => e.id !== id);
+  saveLib();
+  closeDetail();
+  renderLibrary();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// OPTION A — L'appli collecte et formate, Claude.ai fait l'analyse
+// ══════════════════════════════════════════════════════════════════
+
+// ── Convertit une image en base64 court pour le prompt ────────────
+function imgToBase64Short(imgData) {
+  // On retourne juste un indicateur — les images seront copiées séparément
+  return '[photo jointe]';
+}
+
+// ── Formate toutes les données en prompt prêt pour Claude.ai ──────
+function buildAnalysePrompt() {
+  const config   = chips_state['c-config'] || 'non renseigné';
+  const mat      = chips_state['c-mat'] || 'non renseigné';
+  const deco     = getMultiChips('c-deco');
+  const equip    = getMultiChips('c-equip');
+  const serrure  = chips_state['c-serrure'] || 'non renseigné';
+  const aimant   = chips_state['c-aimant'] || 'non renseigné';
+  const marque   = document.getElementById('r-marque').value;
+  const couleur  = document.getElementById('r-couleur').value;
+  const h        = document.getElementById('r-h').value;
+  const l        = document.getElementById('r-l').value;
+  const hp       = document.getElementById('r-hp').value;
+  const vp       = document.getElementById('r-vp').value;
+  const vs       = document.getElementById('r-vs').value;
+  const sens     = chips_state['c-sens'] || 'non renseigné';
+  const obs      = document.getElementById('r-obs').value;
+  const nbPhotos = photos.recoPhotos.length;
+
+  return `Tu es un expert en sécurité physique et identification de portes blindées pour la gendarmerie nationale.
+
+J'ai effectué une reconnaissance terrain et j'ai besoin d'une analyse technique complète de la porte.
+${nbPhotos > 0 ? `\nJ'ai joint ${nbPhotos} photo(s) de la porte dans ce message. Analyse-les en priorité pour identifier le modèle exact.` : ''}
+
+━━━ DONNÉES TERRAIN ━━━
+
+PORTE :
+• Configuration : ${config}
+• Matériau apparent : ${mat}
+• Éléments décoratifs : ${deco.length ? deco.join(', ') : 'aucun noté'}
+• Couleur / finition : ${couleur || 'non renseigné'}
+• Marque visible : ${marque || 'non visible'}
+• Sens ouverture : ${sens}
+
+DIMENSIONS :
+• Hauteur totale : ${h ? h + ' cm' : 'non mesurée'}
+• Largeur totale : ${l ? l + ' cm' : 'non mesurée'}
+• Hauteur poignée : ${hp ? hp + ' cm' : 'non mesurée'}
+• Vantail principal : ${vp ? vp + ' cm' : 'non mesuré'}
+• Vantail secondaire : ${vs ? vs + ' cm' : 'non mesuré'}
+
+ÉQUIPEMENTS VISIBLES :
+• Serrure : ${serrure}
+• Éléments : ${equip.length ? equip.join(', ') : 'aucun coché'}
+• Test aimant : ${aimant}
+
+OBSERVATIONS OPÉRATEUR :
+${obs || 'Aucune observation particulière.'}
+
+━━━ MISSION ━━━
+
+Effectue les étapes suivantes dans l'ordre :
+
+**1. ANALYSE VISUELLE DES PHOTOS**
+Décris précisément ce que tu vois sur chaque photo. Identifie tous les éléments caractéristiques.
+
+**2. RECHERCHE WEB — IDENTIFICATION DU MODÈLE**
+Recherche sur les sites vendeurs (Fichet, Picard, Vachette, Tordjman, Abloy) et compare avec les photos disponibles en ligne pour identifier le modèle exact ou le plus proche. Cite tes sources avec URL.
+
+**3. STRUCTURE INTERNE**
+Sur la base des fiches vendeurs trouvées, décris la composition couche par couche, le système de pivotement et le verrouillage.
+
+**4. PERFORMANCES & CERTIFICATIONS**
+BP, résistance feu, isolation acoustique, norme EN 1627.
+
+**5. POINTS DE VULNÉRABILITÉ**
+Faiblesses spécifiques à ce modèle identifiées dans les fiches techniques ou retours terrain.
+
+**6. CHAMPS À COMPLÉTER**
+Termine avec un bloc JSON (pour que je puisse mettre à jour ma fiche) :
+\`\`\`json
+{
+  "config": "...",
+  "materiau": "...",
+  "couleur": "...",
+  "marque": "...",
+  "hauteur": "...",
+  "largeur": "...",
+  "sens": "...",
+  "serrure": "...",
+  "equipements": [...],
+  "deco": [...],
+  "observations": "..."
+}
+\`\`\``;
+}
+
+function buildDossierPrompt(type) {
+  const inclRetex = type !== 'reco';
+  const posLines  = document.getElementById('rx-pos').value.split('\n').map(s => s.trim()).filter(Boolean);
+  const negLines  = document.getElementById('rx-neg').value.split('\n').map(s => s.trim()).filter(Boolean);
+
+  let prompt = `Tu es un expert en sécurité physique. Génère un dossier de reconnaissance domiciliaire professionnel au format de la gendarmerie nationale.
+
+Style : rapport opérationnel, 1ère personne du pluriel, factuel, sans redondance.
+Format : 8 sections numérotées avec tableaux structurés, en-tête avec localisation, pied de page opérateur + pagination.
+
+━━━ DONNÉES ━━━
+
+SITE : ${document.getElementById('r-adresse').value || '—'} | ${document.getElementById('r-etage').value || '—'} | Réf : ${document.getElementById('r-ref').value || '—'} | ${document.getElementById('r-date').value || '—'} | Op : ${document.getElementById('r-op').value || '—'}
+ACCÈS HALL : ${chips_state['c-acces']||'—'} | Gardien : ${chips_state['c-gardien']||'—'} | Caméras : ${chips_state['c-cam']||'—'}
+ITINÉRAIRE : ${document.getElementById('r-itineraire').value || '—'}
+SOL DEVANT PORTE : ${document.getElementById('r-sol').value || '—'}
+POINT CARACTÉRISTIQUE : ${document.getElementById('r-pointcarac').value || '—'}
+PORTE : ${chips_state['c-config']||'—'} | ${chips_state['c-mat']||'—'} | Marque : ${document.getElementById('r-marque').value||'—'} | H${document.getElementById('r-h').value||'?'}×L${document.getElementById('r-l').value||'?'} cm | VP:${document.getElementById('r-vp').value||'?'} VS:${document.getElementById('r-vs').value||'?'} cm | Poignée : ${document.getElementById('r-hp').value||'?'} cm
+SERRURE : ${chips_state['c-serrure']||'—'} | ÉQUIPEMENTS : ${getMultiChips('c-equip').join(', ')||'—'} | ÉLÉMENTS DÉCO : ${getMultiChips('c-deco').join(', ')||'—'}
+TEST AIMANT : ${chips_state['c-aimant']||'—'}
+OBSERVATIONS : ${document.getElementById('r-obs').value||'—'}
+ANALYSE PORTE : ${aiAnalysis || 'voir analyse jointe dans la conversation'}`;
+
+  if (inclRetex) {
+    prompt += `
+
+━━━ RETEX INTERVENTION ━━━
+
+DATE : ${document.getElementById('rx-date').value||'—'} | DURÉE EFFRACTION : ${document.getElementById('rx-duree').value||'—'} sec
+MHE UTILISÉ : ${chips_state['c-mhe']||'—'} | DIFFICULTÉ : ${chips_state['c-diff']||'—'}
+RÉSULTAT : ${chips_state['c-resultat']||'—'} | ÉTAT PORTE APRÈS : ${document.getElementById('rx-etat').value||'—'}
+CONFORMITÉ VS RECO : ${chips_state['c-conform']||'—'} | ÉCARTS : ${document.getElementById('rx-ecarts').value||'—'}
+JUSTIFICATION CHOIX MHE : ${document.getElementById('rx-choix').value||'—'}
+POINTS POSITIFS : ${posLines.join(' | ')||'—'}
+PROBLÈMES RENCONTRÉS : ${negLines.join(' | ')||'—'}
+ENSEIGNEMENTS : ${document.getElementById('rx-ens').value||'—'}`;
+  }
+
+  prompt += `
+
+━━━ STRUCTURE DU DOSSIER ━━━
+
+Génère les sections suivantes avec tableaux navy/or :
+1. IDENTIFICATION (tableau : désignation, config, technique, certification, poids)
+2. DIMENSIONS (tableau : élément / dimension / remarque)
+3. CONSTRUCTION & STRUCTURE INTERNE (tableau couches + bullets pivotement + verrouillage)
+4. ÉQUIPEMENTS VISIBLES (tableau : équipement / description / emplacement)
+5. PERFORMANCES & CERTIFICATIONS (tableau : critère / niveau / norme)
+6. POINTS DE VIGILANCE & OBSERVATIONS (bullets)${inclRetex ? `
+7. EFFRACTION
+   • Choix du moyen (paragraphe justifié)
+   • Déroulement (paragraphe)
+   • Points positifs (bullets)
+   • Problèmes rencontrés (bullets)
+   • Enseignements / doctrine (paragraphe)
+   • Résultat final (bloc synthèse)` : ''}
+
+Puis demande-moi : "Veux-tu que je génère le fichier Word (.docx) avec ce contenu ?"`;
+
+  return prompt;
+}
+
+// ── Copie dans le presse-papier + ouvre Claude.ai ────────────────
+async function ouvrirClaudeIA(prompt, photosToSend = []) {
+  try {
+    await navigator.clipboard.writeText(prompt);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ── Log UI ────────────────────────────────────────────────────────
+function addLog(id, text, state) {
+  const log = document.getElementById('ai-log-reco');
+  if (!log) return;
+  const ex = document.getElementById('alog_' + id);
+  const icon = state === 'spin'
+    ? `<div class="ai-spinner"></div>`
+    : `<div class="ai-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>`;
+  const html = `<div class="ai-log-item" id="alog_${id}">${icon}<span>${text}</span></div>`;
+  if (ex) ex.outerHTML = html; else log.insertAdjacentHTML('beforeend', html);
+}
+
+// ── Bouton principal : prépare et bascule vers Claude.ai ──────────
+async function lancerAnalyse() {
+  const btn = document.getElementById('btn-analyse');
+  btn.disabled = true;
+  const logBox = document.getElementById('ai-log-reco');
+  logBox.style.display = 'block';
+  logBox.innerHTML = '';
+
+  addLog('p1', 'Formatage des données terrain...', 'spin');
+  await new Promise(r => setTimeout(r, 300));
+
+  const prompt = buildAnalysePrompt();
+  const nbPhotos = photos.recoPhotos.length;
+
+  addLog('p1', 'Données formatées', 'done');
+  addLog('p2', 'Copie dans le presse-papier...', 'spin');
+  await new Promise(r => setTimeout(r, 200));
+
+  const copied = await ouvrirClaudeIA(prompt);
+  addLog('p2', copied ? 'Prompt copié ✓' : 'Copie manuelle nécessaire', 'done');
+
+  // Affiche le bloc d'instructions
+  const resultDiv = document.getElementById('ai-result-reco');
+  const textDiv   = document.getElementById('ai-result-text');
+
+  const photosHtml = nbPhotos > 0 ? `
+    <div style="background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:10px 12px;margin-bottom:10px">
+      <p style="font-size:12px;font-weight:500;color:var(--gold);margin-bottom:6px">📎 ${nbPhotos} photo(s) à joindre dans Claude.ai</p>
+      <p style="font-size:11px;color:var(--text2);line-height:1.6">Dans Claude.ai, clique sur l'icône trombone avant d'envoyer et sélectionne tes ${nbPhotos} photo(s) de reconnaissance.</p>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px">
+        ${photos.recoPhotos.slice(0,4).map(p=>`<div style="aspect-ratio:1;border-radius:5px;overflow:hidden"><img src="${p.data}" style="width:100%;height:100%;object-fit:cover"></div>`).join('')}
+      </div>
+    </div>` : '';
+
+  textDiv.innerHTML = photosHtml + `
+    <div style="background:var(--surface2);border-radius:8px;padding:10px 12px;font-size:12px;line-height:1.7;color:var(--text2)">
+      <p style="font-weight:500;color:var(--text);margin-bottom:6px">Prompt prêt — ${prompt.length} caractères</p>
+      <p style="font-family:'IBM Plex Mono',monospace;font-size:10px;opacity:.6;white-space:pre-wrap;max-height:80px;overflow:hidden">${prompt.substring(0, 200)}...</p>
+    </div>`;
+
+  resultDiv.style.display = 'block';
+  document.getElementById('btn-to-dossier').disabled = false;
+  addLog('p3', 'Prêt à envoyer dans Claude.ai', 'done');
+  btn.disabled = false;
+}
+
+// ── Stocke l'analyse reçue de Claude.ai (collée manuellement) ────
+let aiAnalysis = '';
+function sauvegarderAnalyse() {
+  const val = document.getElementById('analyse-retour').value.trim();
+  if (!val) return;
+  aiAnalysis = val;
+  document.getElementById('analyse-retour-wrap').style.display = 'none';
+  document.getElementById('btn-to-dossier').disabled = false;
+  showPrefillBadge('Analyse sauvegardée');
+
+  // Tente d'extraire le JSON de pré-remplissage si présent
+  const jsonMatch = val.match(/```json([\s\S]*?)```/);
+  if (jsonMatch) {
+    try {
+      const data = JSON.parse(jsonMatch[1].trim());
+      applyVisionData(data);
+    } catch {}
+  }
+}
+
+// ── GÉNÉRATION DOSSIER ────────────────────────────────────────────
+function gv(id) { return (document.getElementById(id) || {}).value || ''; }
+
+async function genDossier(type) {
+  const status  = document.getElementById('gen-status');
+  const prompt  = buildDossierPrompt(type);
+  const nbPhotos = photos.retexPhotos.length;
+
+  // Copie dans le presse-papier
+  let copied = false;
+  try { await navigator.clipboard.writeText(prompt); copied = true; } catch {}
+
+  const photosRetexHtml = (type !== 'reco' && nbPhotos > 0) ? `
+    <div style="background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:10px 12px;margin-bottom:10px">
+      <p style="font-size:12px;font-weight:500;color:var(--gold);margin-bottom:4px">📎 ${nbPhotos} photo(s) post-intervention à joindre</p>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:6px">
+        ${photos.retexPhotos.slice(0,4).map(p=>`<div style="aspect-ratio:1;border-radius:5px;overflow:hidden"><img src="${p.data}" style="width:100%;height:100%;object-fit:cover"></div>`).join('')}
+      </div>
+    </div>` : '';
+
+  status.innerHTML = `
+    ${photosRetexHtml}
+    <div style="background:rgba(82,192,122,.1);border:1px solid rgba(82,192,122,.2);border-radius:8px;padding:10px 12px;margin-bottom:10px">
+      <p style="font-size:12px;font-weight:500;color:var(--green);margin-bottom:4px">${copied ? '✓ Prompt copié dans le presse-papier' : 'Prompt prêt'}</p>
+      <p style="font-size:11px;color:var(--text2);line-height:1.6">Ouvre Claude.ai, colle le prompt${(type !== 'reco' && nbPhotos > 0) ? ' et joins les photos post-intervention' : ''}. Claude générera le dossier complet et te proposera de créer le fichier Word.</p>
+    </div>
+    <button onclick="window.open('https://claude.ai','_blank')" style="width:100%;padding:11px;border-radius:9px;background:var(--gold);border:none;color:var(--bg);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'IBM Plex Sans',sans-serif">
+      <svg width="16" height="16" viewBox="0 0 24 24" style="stroke:var(--bg);fill:none;stroke-width:2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      Ouvrir Claude.ai
+    </button>`;
+}
+
+// ── Pré-remplissage depuis JSON vision ───────────────────────────
+function applyVisionData(data) {
+  const textFields = {
+    'r-marque': data.marque, 'r-couleur': data.couleur,
+    'r-h': data.hauteur, 'r-l': data.largeur,
+    'r-hp': data.hauteurPoignee, 'r-vp': data.vantailPrinc,
+    'r-vs': data.vantailSec, 'r-obs': data.observations
+  };
+  Object.entries(textFields).forEach(([id, val]) => {
+    if (!val || val === 'null') return;
+    const el = document.getElementById(id);
+    if (el && !el.value) el.value = val;
+  });
+  const radioMap = { 'c-config': data.config, 'c-mat': data.materiau, 'c-sens': data.sens, 'c-serrure': data.serrure };
+  Object.entries(radioMap).forEach(([group, val]) => {
+    if (!val || val === 'null' || chips_state[group]) return;
+    document.querySelectorAll(`#${group} .chip`).forEach(c => {
+      if (c.textContent.trim().toLowerCase().includes(val.toLowerCase())) {
+        document.querySelectorAll(`#${group} .chip`).forEach(x => x.classList.remove('on'));
+        c.classList.add('on');
+        chips_state[group] = c.textContent.trim();
+      }
+    });
+  });
+  if (data.equipements?.length) {
+    data.equipements.forEach(eq => {
+      document.querySelectorAll('#c-equip .chip').forEach(c => {
+        if (c.textContent.trim().toLowerCase().includes(eq.toLowerCase())) c.classList.add('on');
+      });
+    });
+  }
+  if (data.deco?.length) {
+    data.deco.forEach(d => {
+      document.querySelectorAll('#c-deco .chip').forEach(c => {
+        if (c.textContent.trim().toLowerCase().includes(d.toLowerCase())) c.classList.add('on');
+      });
+    });
+  }
+}
+
+function showPrefillBadge(msg) {
+  const ex = document.getElementById('prefill-badge');
+  if (ex) ex.remove();
+  const b = document.createElement('div');
+  b.id = 'prefill-badge';
+  b.style.cssText = 'background:rgba(82,192,122,.1);border:1px solid rgba(82,192,122,.2);border-radius:8px;padding:8px 12px;margin-top:8px;font-size:12px;color:var(--green)';
+  b.textContent = '✓ ' + msg;
+  document.getElementById('ai-log-reco').after(b);
+}
+
+// ── INSTALL BANNER ────────────────────────────────────────────────
+function toggleInstallInfo() {
+  document.getElementById('info-sheet').classList.toggle('open');
+}
+
+const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+if (!isStandalone) {
+  document.getElementById('install-banner-wrap').innerHTML = `
+    <div class="install-banner" onclick="toggleInstallInfo()">
+      <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+      <div class="install-banner-text">
+        <p>Installer sur l'écran d'accueil</p>
+        <span>Safari → Partager → Sur l'écran d'accueil</span>
+      </div>
+      <div class="install-close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+    </div>`;
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+document.getElementById('r-date').value = new Date().toISOString().split('T')[0];
+document.getElementById('rx-date').value = new Date().toISOString().split('T')[0];
+loadLib();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+// ── Appel Claude avec vision (images base64) ──────────────────────
+async function callClaudeVision(prompt, images = []) {
+  const content = [];
+  images.forEach(img => {
+    const mime = img.data.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
+    const b64 = img.data.split(',')[1];
+    content.push({ type: 'image', source: { type: 'base64', media_type: mime, data: b64 } });
+  });
+  content.push({ type: 'text', text: prompt });
+  const body = { model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content }] };
+  const r = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const d = await r.json();
+  return d.content.filter(c => c.type === 'text').map(c => c.text).join('');
+}
+
+// ── Pré-remplissage des champs depuis les photos ──────────────────
+function applyVisionData(data) {
+  // Champs texte — on ne remplace que si vide
+  const textFields = {
+    'r-marque': data.marque, 'r-couleur': data.couleur,
+    'r-h': data.hauteur, 'r-l': data.largeur,
+    'r-hp': data.hauteurPoignee, 'r-vp': data.vantailPrinc,
+    'r-vs': data.vantailSec, 'r-obs': data.observations
+  };
+  Object.entries(textFields).forEach(([id, val]) => {
+    if (!val) return;
+    const el = document.getElementById(id);
+    if (el && !el.value) el.value = val;
+  });
+
+  // Chips radio — on ne sélectionne que si aucun déjà coché
+  const radioChips = {
+    'c-config': data.config, 'c-mat': data.materiau,
+    'c-sens': data.sens, 'c-serrure': data.serrure, 'c-aimant': data.aimant
+  };
+  Object.entries(radioChips).forEach(([group, val]) => {
+    if (!val || chips_state[group]) return;
+    const chips = document.querySelectorAll(`#${group} .chip`);
+    chips.forEach(c => {
+      if (c.textContent.trim().toLowerCase().includes(val.toLowerCase()) ||
+          val.toLowerCase().includes(c.textContent.trim().toLowerCase())) {
+        chips.forEach(x => x.classList.remove('on'));
+        c.classList.add('on');
+        chips_state[group] = c.textContent.trim();
+      }
+    });
+  });
+
+  // Multi chips équipements — on coche ceux détectés non encore cochés
+  if (data.equipements && data.equipements.length) {
+    data.equipements.forEach(eq => {
+      document.querySelectorAll('#c-equip .chip').forEach(c => {
+        if (c.textContent.trim().toLowerCase().includes(eq.toLowerCase()) ||
+            eq.toLowerCase().includes(c.textContent.trim().toLowerCase())) {
+          c.classList.add('on');
+        }
+      });
+    });
+  }
+  if (data.deco && data.deco.length) {
+    data.deco.forEach(d => {
+      document.querySelectorAll('#c-deco .chip').forEach(c => {
+        if (c.textContent.trim().toLowerCase().includes(d.toLowerCase()) ||
+            d.toLowerCase().includes(c.textContent.trim().toLowerCase())) {
+          c.classList.add('on');
+        }
+      });
+    });
+  }
+}
+
+function showPrefillBadge(count) {
+  const existing = document.getElementById('prefill-badge');
+  if (existing) existing.remove();
+  const badge = document.createElement('div');
+  badge.id = 'prefill-badge';
+  badge.style.cssText = 'background:rgba(82,192,122,.12);border:1px solid rgba(82,192,122,.25);border-radius:8px;padding:8px 12px;margin-top:10px;font-size:12px;color:var(--green);display:flex;align-items:center;gap:7px';
+  badge.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" style="stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg><span>${count} champ${count>1?'s':''} pré-rempli${count>1?'s':''} depuis les photos — vérifiez et corrigez si besoin</span>`;
+  document.getElementById('ai-log-reco').after(badge);
+}
+
+async function lancerAnalyse() {
+  const btn = document.getElementById('btn-analyse');
+  btn.disabled = true;
+  document.getElementById('ai-log-reco').style.display = 'block';
+  document.getElementById('ai-result-reco').style.display = 'none';
+  const existing = document.getElementById('prefill-badge');
+  if (existing) existing.remove();
+
+  let ficheV = '', compPhoto = '', allSources = [];
+
+  try {
+    // ── ÉTAPE 0 : analyse visuelle des photos ────────────────────
+    if (photos.recoPhotos.length > 0) {
+      addLog('a0', 'Analyse visuelle des photos...', 'spin');
+      const visionPrompt = `Tu es un expert en identification de portes. Analyse ces photos de porte et retourne UNIQUEMENT un JSON valide (sans backticks, sans texte avant ou après) avec les champs suivants déduits de l'image. Mets null si tu ne peux pas déterminer.
+{
+  "config": "Simple vantail|Double vantail asymétrique|Double vantail symétrique|null",
+  "materiau": "Bois massif|Bois + blindage acier|Acier apparent|Acier laqué|Aluminium|Verre + métal|Verre sécurit|PVC|Mixte bois/verre|null",
+  "couleur": "description courte de la couleur/finition visible",
+  "marque": "marque si visible sur la porte sinon null",
+  "hauteur": "estimation en cm si possible sinon null",
+  "largeur": "estimation en cm si possible sinon null",
+  "hauteurPoignee": "estimation en cm si possible sinon null",
+  "vantailPrinc": "largeur estimée en cm du vantail principal sinon null",
+  "vantailSec": "largeur estimée en cm du vantail secondaire sinon null",
+  "sens": "Tirant G|Tirant D|Poussant G|Poussant D|null",
+  "serrure": "Simple|Multipoints|Carénée|Inconnue",
+  "aimant": "Métal détecté|Bois épais — pas de détection|null",
+  "equipements": ["liste des éléments visibles parmi: Judas, Interphone, Badge, Cornières anti-pince, Plats acier vert., Plaque cylindre, Rivets apparents, Verrou H/B, Caméra"],
+  "deco": ["liste parmi: Moulures bois, Moulures métal, Plats métalliques dorés, Plats chromés, Rivets apparents, Encadrement métal, Vitrage latéral, Vitrage central, Grille forgée, Laiton / bronze, Inox brossé, Panneau décoratif"],
+  "observations": "observations visuelles importantes non couvertes par les autres champs"
+}`;
+
+      const imgSubset = photos.recoPhotos.slice(0, 4); // max 4 images pour la vision
+      const visionText = await callClaudeVision(visionPrompt, imgSubset);
+
+      try {
+        let jsonStr = visionText.replace(/```json|```/g, '').trim();
+        const start = jsonStr.indexOf('{'), end = jsonStr.lastIndexOf('}');
+        if (start >= 0 && end > start) jsonStr = jsonStr.substring(start, end + 1);
+        const visionData = JSON.parse(jsonStr);
+
+        // Compter les champs qui vont être pré-remplis
+        let filled = 0;
+        const textFieldsCheck = { 'r-marque': visionData.marque, 'r-couleur': visionData.couleur, 'r-h': visionData.hauteur, 'r-l': visionData.largeur, 'r-hp': visionData.hauteurPoignee, 'r-vp': visionData.vantailPrinc, 'r-vs': visionData.vantailSec, 'r-obs': visionData.observations };
+        Object.entries(textFieldsCheck).forEach(([id, val]) => { if (val && !document.getElementById(id)?.value) filled++; });
+        ['c-config','c-mat','c-sens','c-serrure'].forEach(g => { if (visionData[g.replace('c-','').replace('mat','materiau').replace('config','config').replace('sens','sens').replace('serrure','serrure')] && !chips_state[g]) filled++; });
+        if (visionData.equipements?.length) filled++;
+        if (visionData.deco?.length) filled++;
+
+        applyVisionData(visionData);
+        if (filled > 0) showPrefillBadge(filled);
+        addLog('a0', `Photos analysées — ${filled} champ${filled>1?'s':''} pré-rempli${filled>1?'s':''}`, 'done');
+      } catch {
+        addLog('a0', 'Photos analysées', 'done');
+      }
+    }
+
+    // ── ÉTAPE 1 : fiches vendeurs ────────────────────────────────
+    const config = chips_state['c-config'] || '', mat = chips_state['c-mat'] || '';
+    const marque = document.getElementById('r-marque').value;
+    const equip = getMultiChips('c-equip'), obs = document.getElementById('r-obs').value;
+
+    addLog('a1', 'Recherche fiches vendeurs...', 'spin');
+    const r1 = await callClaude(`Expert sécurité. Recherche fiches techniques vendeurs (Fichet, Picard, Vachette, Tordjman) pour :\nConfig:${config||'double vantail'} Mat:${mat} Marque:${marque||'?'} Éléments:${equip.join(',')||'plats acier'}\nRécupère composition, certifications. Cite URLs.`, true);
+    ficheV = r1.text; allSources.push(...r1.sources);
+    addLog('a1', 'Fiches vendeurs récupérées', 'done');
+
+    // ── ÉTAPE 2 : comparaison photos web ────────────────────────
+    addLog('a2', 'Comparaison photos web...', 'spin');
+    const r2 = await callClaude(`Expert identification portes. Recherche images pour identifier :\nVisuels:${equip.join(',')} Mat:${mat} Marque:${marque||'?'} Obs:${obs}\nIdentifie le modèle. Cite sources.`, true);
+    compPhoto = r2.text; allSources.push(...r2.sources);
+    addLog('a2', 'Comparaison effectuée', 'done');
+
+    // ── ÉTAPE 3 : synthèse structurelle ─────────────────────────
+    addLog('a3', 'Synthèse structurelle...', 'spin');
+    const r3 = await callClaude(`Expert sécurité. Analyse complète sans redondance.\nDONNÉES: Config:${config} Mat:${mat} Marque:${marque} H:${document.getElementById('r-h').value}cm L:${document.getElementById('r-l').value}cm Serrure:${chips_state['c-serrure']||'?'} Équip:${equip.join(',')} Obs:${obs}\nFICHES VENDEURS:\n${ficheV}\nCOMPARAISON PHOTOS:\n${compPhoto}\n5 sections: 1.IDENTIFICATION 2.STRUCTURE INTERNE 3.VERROUILLAGE 4.RÉSISTANCES 5.VULNÉRABILITÉS`);
+    aiAnalysis = r3.text;
+    aiSources = [...new Map(allSources.filter(s => s.url).map(s => [s.url, s])).values()];
+    document.getElementById('ai-result-text').textContent = aiAnalysis;
+    const srcDiv = document.getElementById('ai-sources');
+    if (aiSources.length) srcDiv.innerHTML = aiSources.slice(0, 5).map(s => `<span class="src-badge">↗ ${(s.title || s.url).substring(0, 30)}</span>`).join('');
+    document.getElementById('ai-result-reco').style.display = 'block';
+    document.getElementById('btn-to-dossier').disabled = false;
+    addLog('a3', 'Analyse terminée', 'done');
+
+  } catch (err) { addLog('err', 'Erreur : ' + err.message, 'done'); }
+  btn.disabled = false;
+}
+
+// ── GÉNÉRATION DOSSIER ────────────────────────────────────────────
+function gv(id) { return (document.getElementById(id) || {}).value || ''; }
+
+async function genDossier(type) {
+  const status = document.getElementById('gen-status');
+  status.innerHTML = '<div class="loading"><div class="ai-spinner"></div><span style="font-size:12px;color:var(--text2);margin-left:8px">Génération en cours...</span></div>';
+  const inclRetex = type !== 'reco';
+  const posLines = gv('rx-pos').split('\n').map(s => s.trim()).filter(Boolean);
+  const negLines = gv('rx-neg').split('\n').map(s => s.trim()).filter(Boolean);
+  const prompt = `Génère un dossier technique de reconnaissance/intervention domiciliaire professionnel gendarmerie au format texte structuré. Style rapport opérationnel, 1ère personne du pluriel. Sans redondance.
+
+SITE : ${gv('r-adresse')} | ${gv('r-etage')} | Réf:${gv('r-ref')} | ${gv('r-date')} | Op:${gv('r-op')}
+ACCÈS : ${chips_state['c-acces']||'?'} | Gardien:${chips_state['c-gardien']||'?'} | Caméras:${chips_state['c-cam']||'?'}
+ITINÉRAIRE : ${gv('r-itineraire')} | Sol devant porte : ${gv('r-sol')||'?'}
+POINT CARACTÉRISTIQUE : ${gv('r-pointcarac')}
+PORTE : ${chips_state['c-config']||'?'} | ${chips_state['c-mat']||'?'} | Marque:${gv('r-marque')} | H${gv('r-h')}×L${gv('r-l')}cm | VP:${gv('r-vp')} VS:${gv('r-vs')}cm Poignée:${gv('r-hp')}cm
+SERRURE : ${chips_state['c-serrure']||'?'} | ÉQUIP : ${getMultiChips('c-equip').join(',')} | TEST AIMANT : ${chips_state['c-aimant']||'?'}
+OBS : ${gv('r-obs')}
+
+ANALYSE IA PORTE :
+${aiAnalysis || 'Non générée'}
+
+${inclRetex ? `RETEX INTERVENTION :
+DATE : ${gv('rx-date')} | DURÉE : ${gv('rx-duree')} sec | MHE : ${chips_state['c-mhe']||'?'} | DIFFICULTÉ : ${chips_state['c-diff']||'?'}
+RÉSULTAT : ${chips_state['c-resultat']||'?'} | ÉTAT PORTE : ${gv('rx-etat')}
+CONFORMITÉ RECO : ${chips_state['c-conform']||'?'} | ÉCARTS : ${gv('rx-ecarts')}
+JUSTIFICATION MHE : ${gv('rx-choix')}
+POINTS POSITIFS : ${posLines.join(' / ')}
+PROBLÈMES : ${negLines.join(' / ')}
+ENSEIGNEMENTS : ${gv('rx-ens')}` : ''}
+
+Sections : 1.IDENTIFICATION 2.DIMENSIONS 3.CONSTRUCTION 4.ÉQUIPEMENTS 5.PERFORMANCES 6.POINTS DE VIGILANCE${inclRetex ? ' 7.EFFRACTION (avec : Choix du moyen, Déroulement, Points positifs, Problèmes rencontrés, Enseignements, Résultat final)' : ''}`;
+
+  try {
+    const r = await callClaude(prompt);
+    const content = r.text;
+    status.innerHTML = `<p style="font-size:12px;color:var(--green);margin-bottom:8px">✓ Contenu généré</p>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:11px;white-space:pre-wrap;max-height:200px;overflow-y:auto;color:var(--text2);line-height:1.6;margin-bottom:8px">${content.substring(0,800)}...</div>`;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
+    const cb = document.createElement('button');
+    cb.className = 'btn-ghost'; cb.style.flex = '1';
+    cb.innerHTML = '<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copier';
+    cb.onclick = () => { navigator.clipboard.writeText(content); cb.textContent = '✓ Copié'; setTimeout(() => { cb.innerHTML = '<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copier'; }, 2000); };
+    row.appendChild(cb);
+    status.appendChild(row);
+  } catch (err) {
+    status.innerHTML = `<p style="font-size:12px;color:var(--red)">Erreur : ${err.message}</p>`;
+  }
+}
+
+// ── INSTALL BANNER ────────────────────────────────────────────────
+function toggleInstallInfo() {
+  document.getElementById('info-sheet').classList.toggle('open');
+}
+
+const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+if (!isStandalone) {
+  document.getElementById('install-banner-wrap').innerHTML = `
+    <div class="install-banner" onclick="toggleInstallInfo()">
+      <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+      <div class="install-banner-text">
+        <p>Installer sur l'écran d'accueil</p>
+        <span>Safari → Partager → Sur l'écran d'accueil</span>
+      </div>
+      <div class="install-close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+    </div>`;
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+document.getElementById('r-date').value = new Date().toISOString().split('T')[0];
+document.getElementById('rx-date').value = new Date().toISOString().split('T')[0];
+loadLib();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
